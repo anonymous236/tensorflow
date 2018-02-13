@@ -64,18 +64,26 @@ Session.run()有两个关键的参数：fetches 和 feed_dict
 '''
 
 with tf.Session() as sess:
+    # 初始化所有变量
+    # tf.initialize_all_variables()可能被弃用，改为tf.global_variables_initializer()
     tf.initialize_all_variables().run()
+
+    # 训练迭代 10 轮
     for epoch in range(10):
         total_loss = 0
+	# 对于每一行数据，计算损失函数值
 	for i in range(len(X_train)):
 	    feed = {X: [X_train[i]], y: [y_train[i]]}
 	    _, loss = sess.run([train_op, cost], feed_dict=feed)
 	    total_loss += loss
 	print "Epoch: %d, total loss=%.9f" % (epoch+1, total_loss)
     print "Training completed!"
+    # 训练结束后，保持参数 weights 和 bias 不变
     
-    # 训练测试集验证
+    # 训练测试集验证准确率
+    # 读取新测试集、weights、bias，计算pred（这里pred为一个n分类的向量）
     pred = sess.run(y_pred, feed_dict={X: X_val})
+    # 比较真实值和预测值是否相等。np.argmax(pred ,axis=1)为pred向量最大值所在的坐标，如[3,1,5,4,0]的结果为2
     correct = np.equal(np.argmax(pred,1), np.argmax(y_val,1))
     np_accurancy = np.mean(correct.astype(np.float32))
     print "Numpy accurancy on validation set: %.9f" % np_accurancy
