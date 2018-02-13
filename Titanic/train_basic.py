@@ -46,14 +46,22 @@ cross_entropy = -tf.reduce_sum(y * tf.log(y_pred + 1e-10), reduction_indices=1)
 cost = tf.reduce_mean(cross_entropy)
 
 # 声明优化算法
+# 优化器内部会自动构建梯度计算和反向传播部分的计算图。使用随机梯度下降算法：
 train_op = tf.train.GradientDescentOptimizer(0.001).minimize(cost)
 
 # 声明计算准确率
+# tf.argmax()返回最大值所在的坐标，参数 axis=1 表示以“行”为标准
+# tf.cast()为类型转换函数
 correct_pred = tf.equal(tf.argmax(y,1), tf.argmax(y_pred,1))
 acc_op = tf.reduce_mean(tf.cast(correct_pred, tf.float32))
 
 
 # 构建训练迭代过程
+'''
+Session.run()有两个关键的参数：fetches 和 feed_dict
+* fetches指定需要被计算的节点，节点可以是算子op，也可是tensor
+* feed_dict指定计算所需要的输入数据，传入一个字典: {key:value}，其中key为输入占位符placeholder，value为真实的输入数据
+'''
 
 with tf.Session() as sess:
     tf.initialize_all_variables().run()
