@@ -9,6 +9,7 @@ from sklearn.cross_validation import train_test_split
 data = pd.read_csv('./data-titanic/train.csv')
 
 data['Sex'] = data['Sex'].apply(lambda s: 1 if s == 'male' else 0)
+# 填充缺失字段
 data = data.fillna(0)
 dataset_X = data[['Sex','Age','Pclass','SibSp','Parch','Fare']]
 dataset_X = dataset_X.as_matrix()
@@ -17,9 +18,9 @@ data['Deceased'] = data['Survived'].apply(lambda s: int(not s))
 dataset_Y = data[['Deceased','Survived']]
 dataset_Y = dataset_Y.as_matrix()
 
+#sklearn库提供用于切分数据集的工具函数 train_test_split
 X_train, X_val, y_train, y_val = train_test_split(dataset_X, dataset_Y, test_size = 0.2, random_state = 42)
 
-print X_train.shape
 
 # 构建计算图
 
@@ -27,6 +28,7 @@ print X_train.shape
 X = tf.placeholder(tf.float32, shape=[None, 6])
 y = tf.placeholder(tf.float32, shape=[None, 2])
 
+# 变量定义，构造全零tensor: zeros()、 随机正态分布tensor: random_normal()
 weights = tf.Variable(tf.random_normal([6, 2]), name='weights')
 bias = tf.Variable(tf.zeros([2]), name='bias')
 
@@ -34,6 +36,12 @@ bias = tf.Variable(tf.zeros([2]), name='bias')
 y_pred = tf.nn.softmax(tf.matmul(X, weights) + bias)
 
 # 声明代价函数
+'''
+解决计算交叉熵中存在的log(0)问题:
+* 在计算log()时，直接加入一个极小的误差值，使计算合法。这样可以避免计算log(0)，但存在的问题是加入误差后的计算值会突破1
+* 使用clip()函数，当y_pred接近0时，将其赋值成为极小误差值，如范围为[1e-10,1]
+* 当计算交叉熵出现NAN时，显式地将cost设置为0。
+'''
 cross_entropy = -tf.reduce_sum(y * tf.log(y_pred + 1e-10), reduction_indices=1)
 cost = tf.reduce_mean(cross_entropy)
 
