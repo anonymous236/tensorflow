@@ -22,3 +22,16 @@ if __name__ == '__main__':
 
 # python flags.py --str_name test_str --int_name 99 --bool_name True
 ```
+
+执行:
+```
+ubuntu@ubuntu:~/work/titanic$ python flags.py
+def_v_1
+10
+False
+ubuntu@ubuntu:~/work/titanic$ python flags.py --str_name test_str --int_name 99 --bool_name True
+test_str
+99
+True
+```
+[传送门](http://blog.csdn.net/leiting_imecas/article/details/72367937)
