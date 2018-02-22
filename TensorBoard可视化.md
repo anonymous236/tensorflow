@@ -7,5 +7,5 @@ pip install tensorboard
 ## 启动TensorBoard
 * 问题描述：在terminal中输入tensorboard时提示找不到命令
 * 解决方法：启动的时候需要换一种方式
-  * 输入pip show tensorflow或者pip show tensorflow-gpu找到tensorflow的安装路径
-  * 再启动 python 安装路径/tensorflow/tensorboard/tensorboard.py --logdir=文件夹路径
+  * 输入 *pip show tensorflow* 或者 *pip show tensorflow-gpu* 找到tensorflow的安装路径
+  * 再启动 *python 安装路径/tensorflow/tensorboard/tensorboard.py --logdir=文件夹路径*
