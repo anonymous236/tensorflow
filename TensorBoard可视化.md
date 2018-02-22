@@ -9,7 +9,7 @@ pip install tensorboard
 * 解决方法：启动的时候需要换一种方式
   * 输入 *pip show tensorflow* 或者 *pip show tensorflow-gpu* 找到tensorflow的安装路径
   * 再输入  *python 安装路径/tensorflow/tensorboard/tensorboard.py --logdir=日志文件夹路径*
-## 记录事件数据完整代码
+## 记录事件数据完整代码 —— Titanic
 ```
 # -*- coding: utf-8 -*-
 
