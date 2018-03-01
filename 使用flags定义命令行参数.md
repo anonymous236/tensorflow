@@ -1,6 +1,6 @@
 ## tf定义了tf.app.flags，用于支持接受命令行传递参数，相当于接受argv。
 
-```
+```python
 # -*- coding:utf-8 -*-
 import tensorflow as tf
 
@@ -24,7 +24,7 @@ if __name__ == '__main__':
 ```
 
 执行:
-```
+```python
 ubuntu@ubuntu:~/work/titanic$ python flags.py
 def_v_1
 10
