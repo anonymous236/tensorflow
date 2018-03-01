@@ -24,7 +24,7 @@ if __name__ == '__main__':
 ```
 
 执行:
-```python
+```
 ubuntu@ubuntu:~/work/titanic$ python flags.py
 def_v_1
 10
