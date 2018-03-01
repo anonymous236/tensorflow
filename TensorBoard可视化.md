@@ -10,7 +10,7 @@ pip install tensorboard
   * 输入 *pip show tensorflow* 或者 *pip show tensorflow-gpu* 找到tensorflow的安装路径
   * 再输入  *python 安装路径/tensorflow/tensorboard/tensorboard.py --logdir=日志文件夹路径*
 ## 记录事件数据完整代码 —— Titanic
-```
+```Python
 # -*- coding: utf-8 -*-
 
 import tensorflow as tf
