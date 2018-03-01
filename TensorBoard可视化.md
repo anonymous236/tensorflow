@@ -1,7 +1,7 @@
 # TensorBoard可视化
 TensorBoard的工作方式是启动一个Web服务，该服务进程从TensorBoard程序执行所得的事件日志文件(event files)中读取概要(summary)数据，然后将数据在网页中绘制成可视化图标。
 ## TensorBoard安装
-```
+```python
 pip install tensorboard
 ```
 ## 启动TensorBoard
