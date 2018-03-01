@@ -12,4 +12,4 @@ RNN在对当前时刻状态的计算还依赖于前一步（前一个位置）�
 
 用公式来表示，RNN的前向传播可以表示为：
 <br>
-！[image](https://github.com/anonymous236/tensorflow/RNN/CodeCogsEqn.gif)
+![image](https://github.com/anonymous236/tensorflow/raw/master/RNN/CodeCogsEqn.gif)
