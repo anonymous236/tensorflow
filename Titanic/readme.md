@@ -25,4 +25,4 @@
 ```
 代码过程可以分为: 数据读入及预处理 -> 构建计算图 -> 构建训练迭代过程 -> 执行训练 -> 存储模型 -> 预测测试数据结果
 ```
-完整代码版本: https://github.com/wangchen1ren/Titanic
+参考代码: https://github.com/wangchen1ren/Titanic
