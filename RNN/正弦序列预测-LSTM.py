@@ -89,7 +89,6 @@ with tf.Session() as sess:
         # 使用均方差作为代价函数
 	val_loss_v = sess.run(val_loss, feed_dict={X:x_value,Y:y_value})
         print 'Run %s: '%i,val_loss_v
-	#loss = sess.run()
+	# tensorboard
 	val_loss_v1,a = sess.run([merged, val_loss], feed_dict={X:x_value,Y:y_value})
-	#print val_loss_v
 	writer.add_summary(val_loss_v1, i)
