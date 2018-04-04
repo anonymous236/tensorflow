@@ -1,6 +1,6 @@
 ## py说明
-* sogou_topic_fasttext.py 搜狗数据分词、划分训练集和测试集；加载数据、存储模型；利用模型进行分类
-* load_model_fasttext.py 加载训练好的模型进行分类
+* [sogou_topic_fasttext.py](https://github.com/anonymous236/tensorflow/blob/master/NLP/sogou_topic_fasttext/sogou_topic_fasttext.py) 搜狗数据分词、划分训练集和测试集；加载数据、存储模型；利用模型进行分类
+* [load_model_fasttext.py](https://github.com/anonymous236/tensorflow/blob/master/NLP/sogou_topic_fasttext/load_model_fasttext.py) 加载训练好的模型进行分类
 
 ## FastText文章中使用的搜狗新闻数据集
 * Categories
