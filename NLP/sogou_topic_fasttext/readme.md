@@ -168,3 +168,21 @@ with open('data/sogou_news_train.txt', 'w') as f:
             f.write(s)
             f.write('\n')
 ```
+### 加载模型
+```python
+import fasttext
+
+lr = 0.05
+dim = 256
+classifier = fasttext.supervised(input_file = 'data/sogou_news_train.txt',
+                                 output = 'data/intent_model',
+                                 label_prefix = '__label__',
+                                 dim = dim,
+                                 lr = lr,
+                                 epoch = 5)
+result_tr = classifier.test('data/sogou_news_test.txt')
+print(result_tr.precision)
+```
+```shell
+ubuntu:~$ 0.9610818622896665
+```
