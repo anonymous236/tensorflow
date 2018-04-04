@@ -60,9 +60,9 @@ ubuntu:~$ 每一个样本有一个url，从中我们可以提取一个话题标�
            'http://dealer.auto.sohu.com/tj',
            'http://news.sohu.com/20120726/',
            'http://roll.sohu.com/20120706/']
- ```
- ```python
- print("统计每个类别的文本数量，对数据有一个初步了解")
+```
+```python
+print("统计每个类别的文本数量，对数据有一个初步了解")
 labels = []
 for label in label_raw:
     labels.append(label[7:].split('.')[0])
@@ -70,8 +70,8 @@ from collections import Counter
 label_stat = Counter(labels)
 for k,v in label_stat.most_common(20):
     print('%15s\t\t%d'%(k,v))
- ```
- ```shell
+```
+```shell
 ubuntu:~$ 统计每个类别的文本数量，对数据有一个初步了解
              roll		720957
           product		177002
@@ -93,8 +93,8 @@ ubuntu:~$ 统计每个类别的文本数量，对数据有一个初步了解
             money		7448
             daxue		7021
              auto		6843
- ```
- ### 根据论文`Character Level Convolutional Neural Networks for Text Classification (2015)`的描述，选择下述5类话题的样本
+```
+### 根据论文`Character Level Convolutional Neural Networks for Text Classification (2015)`的描述，选择下述5类话题的样本
 1. 'sports'
 2. 'stock' // finance
 3. 'yule'  // entertainment 
