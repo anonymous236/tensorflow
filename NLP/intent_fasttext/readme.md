@@ -1,5 +1,6 @@
 ## py说明
-
+* [intent_fasttext.py](https://github.com/anonymous236/tensorflow/blob/master/NLP/intent_fasttext/intent_fasttext.py) 使用fasttext做意图分类;
+  <br>尝试不同的fasttext的learning_rate和feature_dimension，找到最佳的参数
 ## 使用fasttext做意图分类
 意图（intent）是服务类聊天机器人，搜索引擎领域的重要手段，例如下图
 ![intent](https://github.com/anonymous236/figure/blob/master/Dialogue-Structure-NLP.png)
