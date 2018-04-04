@@ -151,7 +151,7 @@ ubuntu:~$ sentence 0
           ...
 ```
 ```python
-# save model
+# save train_data & test_data
 with open('data/sogou_news_test.txt', 'w') as f:
     for i in range(len(data_words)):
         if i%5==0:
@@ -168,7 +168,7 @@ with open('data/sogou_news_train.txt', 'w') as f:
             f.write(s)
             f.write('\n')
 ```
-### 加载模型
+### 加载数据、存储模型；利用模型进行分类
 ```python
 import fasttext
 
