@@ -1,5 +1,5 @@
 ## py说明
- * word_embedding_iceNfire.py
+ * [word_embedding_iceNfire.py](https://github.com/anonymous236/tensorflow/blob/master/NLP/word_embedding_iceNfire/word_embedding_iceNfire.py)
  
 ## jieba分词、使用word2vec训练模型-skip-gram模型
  * Word2Vec是从大量文本语料中以无监督的方式学习语义知识的一种模型<br>通过学习文本来用词向量的方式表征词的语义信息，即通过一个嵌入空间使得语义上相似的单词在该空间内距离很近。Embedding其实就是一个映射，将单词从原先所属的空间映射到新的多维空间中，也就是把原先词所在空间嵌入到一个新的空间中去。
