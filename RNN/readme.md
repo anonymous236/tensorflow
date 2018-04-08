@@ -13,6 +13,10 @@ RNN在对当前时刻状态的计算还依赖于前一步（前一个位置）�
 用公式来表示，RNN的前向传播可以表示为：
 <br>
 ![image](https://github.com/anonymous236/tensorflow/raw/master/RNN/CodeCogsEqn.gif)
+
+$$ a_t = b + Wh_{t-1} + Ux_t $$
+<br>
+$$ ppx =  \int_x \int_y P(x) P_{true}(y|x) \log P(y|x) dx dy$$
 <br>
 在这里，**参数共享**起到重要作用。从公式看出，参数矩阵U、W、V并没有变化，而是使用同一组参数。参数共享的意义在于`在一段文本中，部分重要的信息可能出现在序列的任何位置，甚至同时出现在多个位置上。`也正是由于参数共享的作用，RNN可以处理任意长度的序列。
 # LSTM--长短期记忆网络
