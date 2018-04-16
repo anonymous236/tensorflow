@@ -301,10 +301,10 @@ TensorFlow 将图形定义转换成分布式执行的操作, 以充分利用可�
 
 **相关链接：**
 
-[1] 安装Tensorflow（Linux ubuntu） [http://blog.csdn.net/lenbow/article/details/51203526](http://blog.csdn.net/lenbow/article/details/51203526)
-[2] ubuntu下CUDA编译的GCC降级安装 [http://blog.csdn.net/lenbow/article/details/51596706](http://blog.csdn.net/lenbow/article/details/51596706)
-[3] ubuntu手动安装最新Nvidia显卡驱动 [http://blog.csdn.net/lenbow/article/details/51683783](http://blog.csdn.net/lenbow/article/details/51683783)
-[4] Tensorflow的CUDA升级，以及相关配置 [http://blog.csdn.net/lenbow/article/details/52118116](http://blog.csdn.net/lenbow/article/details/52118116)
-[5] 基于gensim的Doc2Vec简析 [http://blog.csdn.net/lenbow/article/details/52120230](http://blog.csdn.net/lenbow/article/details/52120230)
+[1] 安装Tensorflow（Linux ubuntu） [http://blog.csdn.net/lenbow/article/details/51203526](http://blog.csdn.net/lenbow/article/details/51203526)<br>
+[2] ubuntu下CUDA编译的GCC降级安装 [http://blog.csdn.net/lenbow/article/details/51596706](http://blog.csdn.net/lenbow/article/details/51596706)<br>
+[3] ubuntu手动安装最新Nvidia显卡驱动 [http://blog.csdn.net/lenbow/article/details/51683783](http://blog.csdn.net/lenbow/article/details/51683783)<br>
+[4] Tensorflow的CUDA升级，以及相关配置 [http://blog.csdn.net/lenbow/article/details/52118116](http://blog.csdn.net/lenbow/article/details/52118116)<br>
+[5] 基于gensim的Doc2Vec简析 [http://blog.csdn.net/lenbow/article/details/52120230](http://blog.csdn.net/lenbow/article/details/52120230)<br>
 [6] TensorFlow的分布式学习框架简介 [http://blog.csdn.net/lenbow/article/details/52130565](http://blog.csdn.net/lenbow/article/details/52130565)
 
