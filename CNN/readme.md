@@ -45,10 +45,16 @@ TextCNN类搭建了一个最basic的CNN模型，有input layer，convolutional l
 ```python
 # Embedding layer
 with tf.device('/cpu:0'), tf.name_scope("embedding"):
-    W = tf.Variable(
+    self.W = tf.Variable(
+        # 所有词汇，每个词对应一个embedding_size的向量
         tf.random_uniform([vocab_size, embedding_size], -1.0, 1.0),
         name="W")
-    self.embedded_chars = tf.nn.embedding_lookup(W, self.input_x)
+    # 将input_x中的每句话的每一个词都用embedding_size维的向量来表示
+    # 表示后的向量维度是：[input_x.shape[0], sequence_length, embedding_size]
+    self.embedded_chars = tf.nn.embedding_lookup(self.W, self.input_x)
+    # 因为卷积操作conv2d()需要输入的是四维数据，分别代表着批处理大小、宽度、高度、通道数。
+    # 而embedded_chars只有前三维，所以需要添加一维，设为1。变为：[input_x.shape[0], sequence_length, embedding_size, 1]
+    # [训练时一个batch的图片数量, 图片高度, 图片宽度, 图像通道数]
     self.embedded_chars_expanded = tf.expand_dims(self.embedded_chars, -1)
 ```
 存储全部word vector的矩阵W初始化时是随机random出来的，也就是paper中的第一种模型CNN-rand.<br>
@@ -68,3 +74,50 @@ tf.nn.embedding_lookup:查找input_x中所有的ids，获取它们的word vector
 >> padding： string类型的量，只能是"SAME", "VALID"其中之一，这个值决定了不同的卷积方式<br><br>
 >> use_cudnn_on_gpu： bool类型，是否使用cudnn加速，默认为true<br><br>
 结果返回一个Tensor，这个输出，就是我们常说的feature map
+
+**5&nbsp;&nbsp;&nbsp;Conv and Max-pooling**
+```python
+# 卷积层、池化层
+pooled_outputs = []
+for i, filter_size in enumerate(filter_sizes):
+    with tf.name_scope("conv-maxpool-%s" % filter_size):
+        # 卷积层
+        # 构建卷积核尺寸，输入和输出channel分别为1和num_filters
+        # 相当于CNN中的卷积核，它要求是一个Tensor，
+        # 具有[filter_height, filter_width, in_channels, out_channels]这样的shape，
+        # 具体含义是[卷积核的高度，卷积核的宽度，图像通道数，卷积核个数]，
+        # 要求类型与参数input相同，有一个地方需要注意，第三维in_channels，就是参数input的第四维
+        filter_shape = [filter_size, embedding_size, 1, num_filters]
+        # 矩阵内积 + 偏置 : W * X + b
+        # W 就是卷积核
+        W = tf.Variable(tf.truncated_normal(filter_shape, stddev=0.1), name="W")
+        b = tf.Variable(tf.constant(0.1, shape=[num_filters]), name="b")
+        conv = tf.nn.conv2d(
+            # [训练时一个batch的图片数量, 图片高度, 图片宽度, 图像通道数]
+            self.embedded_chars_expanded,
+            W,
+            # 卷积时在图像每一维的步长，这是一个一维的向量，长度4
+            strides=[1, 1, 1, 1],
+            # string类型的量，只能是”SAME”,”VALID”其中之一，这个值决定了不同的卷积方式
+            padding="VALID",
+            name="conv")
+        # 做完卷积之后，矩阵大小为 [None, sequence_length - filter_size + 1, 1, num_filters]
+
+        # 非线性操作，激活函数：relu(W*x + b)
+        # h 是对卷积结果进行非线性转换之后的结果
+        h = tf.nn.relu(tf.nn.bias_add(conv, b), name="relu")
+
+        # 最大池化, 选取卷积结果的最大值pooled的尺寸为[None, 1, 1, 128](卷积核个数)
+        # 本质上是一个特征向量，最后一个维度是特征代表数量
+        pooled = tf.nn.max_pool(
+            h, # 待池化的四维张量，维度是[batch, height, width, channels]
+            # 池化窗口大小，长度（大于）等于4的数组，与value的维度对应，
+            # 一般为[1,height,width,1]，batch和channels上不池化
+            ksize=[1, sequence_length - filter_size + 1, 1, 1],
+            strides=[1, 1, 1, 1],
+            padding='VALID',
+            name="pool")
+        pooled_outputs.append(pooled)
+        # pooled_outputs最终为一个长度为3的列表。每一个元素都是[None,1,1,128]的Tensor张量
+        # 对每个卷积核重复上述操作，故pooled_outputs的数组长度应该为len(filter_sizes)
+```
