@@ -2,10 +2,8 @@
 * TextCNN 是利用卷积神经网络对文本进行分类的算法，由 Yoon Kim 在 [Convolutional Neural Networks for Sentence Classification](https://arxiv.org/pdf/1408.5882.pdf) 一文
 中提出. 是2014年的算法.<br>
 * CNN 的主要过程如下:
-```
 ![](https://github.com/anonymous236/tensorflow/blob/master/CNN/cnn1.png)
-![](https://github.com/anonymous236/tensorflow/blob/master/CNN/cnn2.png)
-```
+
 ## 解读TextCNN
 * TextCNN源码 [https://github.com/dennybritz/cnn-text-classification-tf](https://github.com/dennybritz/cnn-text-classification-tf)
 * 以下转载至 [http://www.dataguru.cn/forum.php?mod=viewthread&tid=637971&extra=page=1&page=1](http://www.dataguru.cn/forum.php?mod=viewthread&tid=637971&extra=page=1&page=1)
@@ -121,3 +119,67 @@ for i, filter_size in enumerate(filter_sizes):
         # pooled_outputs最终为一个长度为3的列表。每一个元素都是[None,1,1,128]的Tensor张量
         # 对每个卷积核重复上述操作，故pooled_outputs的数组长度应该为len(filter_sizes)
 ```
+**一个卷积核对于一个句子，convolution后得到的是一个vector；max-pooling后，得到的是一个scalar**<br>
+以上是一个filter_size的结果（比如filter_size = 3），pooled存储的是当前filter_size下每个sentence最重要的num_filters个features，结果append到pooled_outputs列表中存起来，再对下一个filter_size进行相同的操作。<br>
+等到for循环结束时，也就是所有的filter_size全部进行了卷积和max-pooling之后，首先需要把相同filter_size的所有pooled结果concat起来，再将不同的filter_size之间的结果concat起来，最后的到的应该类似于二维数组，[batch, all_pooled_result]
+```python
+# Combine all the pooled features
+# 将所有window_size下的feature_vector也组合成一个single vector，作为最后一层softmax的输入
+# 因为3种filter卷积池化之后是一个scalar, 共有
+num_filters_total = num_filters * len(filter_sizes)
+
+# 对pooled_outputs在第四个维度上进行合并，变成一个[None,1,1,384]Tensor张量
+# 将不同核产生的计算结果（features）拼接起来
+# tf.concat(values, concat_dim)连接values中的矩阵，concat_dim指定在哪一维（从0计数）连接
+self.h_pool = tf.concat(pooled_outputs, 3)
+
+# 把每一个max-pooling之后的张量合并起来之后得到一个长向量 [batch_size, num_filters_total]
+# 展开成两维Tensor[None,384]
+self.h_pool_flat = tf.reshape(self.h_pool, [-1, num_filters_total])
+```
+**6&nbsp;&nbsp;&nbsp;Dropout**
+```python
+# 是cnn中最流行的正则化方法
+# dropout layer随机地选择一些神经元，使其失活。
+# 这样可以阻止co-adapting,迫使它们每一个都学习到有用的特征。
+# 失活的神经单元个数由dropout_keep_prob 决定。在训练的时候设为 0.5 ,测试的时候设为 1 (disable dropout)
+with tf.name_scope("dropout"):
+    self.h_drop = tf.nn.dropout(self.h_pool_flat, self.dropout_keep_prob)
+```
+**7&nbsp;&nbsp;&nbsp;Output**
+```python
+# 全连接层计算输出向量(w*h+b)和预测(scores向量中的最大值即为预测结果)；其实是个softmax分类器
+with tf.name_scope("output"):
+    W = tf.get_variable(
+        "W",
+        shape=[num_filters_total, num_classes],
+        initializer=tf.contrib.layers.xavier_initializer())
+    b = tf.Variable(tf.constant(0.1, shape=[num_classes]), name="b")
+    l2_loss += tf.nn.l2_loss(W)
+    l2_loss += tf.nn.l2_loss(b)
+    self.scores = tf.nn.xw_plus_b(self.h_drop, W, b, name="scores")
+    self.predictions = tf.argmax(self.scores, 1, name="predictions")
+```
+**8&nbsp;&nbsp;&nbsp;Loss function**<br>
+得到了整个网络的输出之后，也就是得到了y_prediction，但还需要和真实的y label进行比较，以此来确定预测好坏
+```python
+# 损失函数
+# Calculate Mean cross-entropy loss     计算scores和input_y的交叉熵损失函数
+with tf.name_scope("loss"):
+    losses = tf.nn.softmax_cross_entropy_with_logits(logits=self.scores, labels=self.input_y)
+    self.loss = tf.reduce_mean(losses) + l2_reg_lambda * l2_loss
+```
+还是使用常规的cross_entropy作为loss function。最后一层是全连接层，为了防止过拟合，最后还要在loss func中加入l2正则项，即l2_loss。l2_reg_lambda来确定惩罚的力度
+**9&nbsp;&nbsp;&nbsp;Accuracy**
+```python
+# Accuracy
+# Accuracy计算准确度，预测和真实标签相同即为正确
+with tf.name_scope("accuracy"):
+    correct_predictions = tf.equal(self.predictions, tf.argmax(self.input_y, 1))
+    self.accuracy = tf.reduce_mean(tf.cast(correct_predictions, "float"), name="accuracy")
+```
+tf.equal(x, y)返回的是一个bool tensor，如果xy对应位置的值相等就是true，否则false。得到的tensor是[batch, 1]的.<br>
+tf.cast(x, dtype)将bool tensor转化成float类型的tensor，方便计算<br>
+tf.reduce_mean()本身输入的就是一个float类型的vector（元素要么是0.0，要么是1.0），直接对这样的vector计算mean得到的就是accuracy<br>
+
+![](https://github.com/anonymous236/tensorflow/blob/master/CNN/cnn2.png)
