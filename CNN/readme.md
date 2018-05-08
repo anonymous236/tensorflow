@@ -179,7 +179,7 @@ with tf.name_scope("accuracy"):
     self.accuracy = tf.reduce_mean(tf.cast(correct_predictions, "float"), name="accuracy")
 ```
 tf.equal(x, y)返回的是一个bool tensor，如果xy对应位置的值相等就是true，否则false。得到的tensor是[batch, 1]的.<br>
-tf.cast(x, dtype)将bool tensor转化成float类型的tensor，方便计算<br>
-tf.reduce_mean()本身输入的就是一个float类型的vector（元素要么是0.0，要么是1.0），直接对这样的vector计算mean得到的就是accuracy<br>
+tf.cast(x, dtype)将bool tensor转化成float类型的tensor，方便计算.<br>
+tf.reduce_mean()本身输入的就是一个float类型的vector（元素要么是0.0，要么是1.0），直接对这样的vector计算mean得到的就是accuracy.<br>
 
 ![](https://github.com/anonymous236/tensorflow/blob/master/CNN/cnn2.png)
