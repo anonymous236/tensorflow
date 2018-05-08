@@ -169,7 +169,7 @@ with tf.name_scope("loss"):
     losses = tf.nn.softmax_cross_entropy_with_logits(logits=self.scores, labels=self.input_y)
     self.loss = tf.reduce_mean(losses) + l2_reg_lambda * l2_loss
 ```
-还是使用常规的cross_entropy作为loss function。最后一层是全连接层，为了防止过拟合，最后还要在loss func中加入l2正则项，即l2_loss。l2_reg_lambda来确定惩罚的力度
+还是使用常规的cross_entropy作为loss function。最后一层是全连接层，为了防止过拟合，最后还要在loss func中加入l2正则项，即l2_loss。l2_reg_lambda来确定惩罚的力度<br>
 **9&nbsp;&nbsp;&nbsp;Accuracy**
 ```python
 # Accuracy
