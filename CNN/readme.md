@@ -10,7 +10,7 @@
 * TextCNN源码 [https://github.com/dennybritz/cnn-text-classification-tf](https://github.com/dennybritz/cnn-text-classification-tf)
 * 以下转载至 [http://www.dataguru.cn/forum.php?mod=viewthread&tid=637971&extra=page=1&page=1](http://www.dataguru.cn/forum.php?mod=viewthread&tid=637971&extra=page=1&page=1)
 
-**1  这个class的主要作用是什么?**<br>
+**1&nbsp;&nbsp;&nbsp;这个class的主要作用是什么?**<br>
 TextCNN类搭建了一个最basic的CNN模型，有input layer，convolutional layer，max-pooling layer和最后输出的softmax layer.<br>
 但是又因为整个模型是用于文本的(而非CNN的传统处理对象：图像)，因此在cnn的操作上相对应地做了一些小调整：
 * 对于文本任务，输入层自然使用了word embedding来做input data representation
@@ -22,7 +22,7 @@ TextCNN类搭建了一个最basic的CNN模型，有input layer，convolutional l
   
 总结一下这个类的作用就是：搭建一个用于文本数据的CNN模型！
 
-**2  模型参数**<br>
+**2&nbsp;&nbsp;&nbsp;模型参数**
 * 关于model
   * filter_sizes: 3,4,5, Comma-separated filter sizes (default: '3,4,5')
   * num_filters: 128, Number of filters per filter size (default: 128)
@@ -35,13 +35,13 @@ TextCNN类搭建了一个最basic的CNN模型，有input layer，convolutional l
   * checkpoint_every: 100, Save model after this many steps (default: 100)
   * num_checkpoints: 5, Number of checkpoints to store (default: 5)
   
-**3  Dropout**<br>
+**3&nbsp;&nbsp;&nbsp;Dropout**
 * 正则是解决过拟合的问题，在最后一层softmax的时候是full-connected layer，因此容易产生过拟合.
 * 策略就是在: 
   * 在**训练**阶段，对max-pooling layer的输出实行一些dropout，以概率p激活，激活的部分传递给softmax层.<br>
   * 在**测试**阶段，w已经学好了，但是不能直接用于unseen sentences，要乘以p之后再用，这个阶段没有dropout了全部输出给softmax层.
   
-**4  Embedding Layer**<br>
+**4&nbsp;&nbsp;&nbsp;Embedding Layer**
 ```python
 # Embedding layer
 with tf.device('/cpu:0'), tf.name_scope("embedding"):
@@ -56,4 +56,6 @@ with tf.device('/cpu:0'), tf.name_scope("embedding"):
 ```python
 self.input_x = tf.placeholder(tf.int32, [None, sequence_length], name="input_x")
 ```
-tf.nn.embedding_lookup:查找input_x中所有的ids，获取它们的word vector。batch中的每个sentence的每个word都要查找。所以得到的embedded_chars的shape应该是[None, sequence_length, embedding_size]
+tf.nn.embedding_lookup:查找input_x中所有的ids，获取它们的word vector。batch中的每个sentence的每个word都要查找。所以得到的embedded_chars的shape应该是[None, sequence_length, embedding_size]&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(1)<br>
+输入的word vectors得到之后，下一步就是输入到卷积层，用到 [tf.nn.conv2d](https://blog.csdn.net/mao_xiao_feng/article/details/78004522) 函数
+
