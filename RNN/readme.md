@@ -88,3 +88,49 @@ Attention机制通过在每个时间输入不同的c来解决这个问题，下�
 ![](https://pic1.zhimg.com/80/v2-d266bf48a1d77e7e4db607978574c9fc_hd.jpg)
 
 输入的序列是“我爱中国”，因此，Encoder中的h1、h2、h3、h4就可以分别看做是“我”、“爱”、“中”、“国”所代表的信息。在翻译成英语时，第一个上下文c1应该和“我”这个字最相关，因此对应的 a_{11} 就比较大，而相应的 a_{12} 、 a_{13} 、 a_{14} 就比较小。c2应该和“爱”最相关，因此对应的 a_{22} 就比较大。最后的c3和h3、h4最相关，因此 a_{33} 、 a_{34} 的值就比较大。
+
+至此，关于Attention模型，我们就只剩最后一个问题了，那就是：__这些权重 a_{ij} 是怎么来的__？
+
+事实上， a_{ij} 同样是从模型中学出的，它实际和Decoder的第i-1阶段的隐状态、Encoder第j个阶段的隐状态有关。
+
+同样还是拿上面的机器翻译举例， a_{1j} 的计算（此时箭头就表示对h'和 h_j 同时做变换）：
+
+![](https://pic1.zhimg.com/80/v2-5561fa61321f31113043fb9711ee3263_hd.jpg)
+
+a_{2j} 的计算:
+
+![](https://pic4.zhimg.com/80/v2-50473aa7b1c20d680abf8ca36d82c9e4_hd.jpg)
+
+a_{3j} 的计算：
+
+![](https://pic3.zhimg.com/80/v2-07f7411c77901a7bd913e55884057a63_hd.jpg)
+
+以上就是带有Attention的Encoder-Decoder模型计算的全过程。
+
+## TensorFlow中RNN实现的正确打开方式
+**1&nbsp;&nbsp;&nbsp;&nbsp;学习单步的RNN：RNNCell**
+
+如果要学习TensorFlow中的RNN，第一站应该就是去了解“[RNNCell](https://www.tensorflow.org/api_docs/python/tf/contrib/rnn/RNNCell)”，它是TensorFlow中实现RNN的基本单元，每个RNNCell都有一个call方法，使用方式是：(output, next_state) = call(input, state)。
+
+在代码实现上，RNNCell只是一个抽象类，我们用的时候都是用的它的两个子类BasicRNNCell和BasicLSTMCell。顾名思义，前者是RNN的基础类，后者是LSTM的基础类。这里推荐大家阅读其源码实现，一开始并不需要全部看一遍，只需要看下RNNCell、BasicRNNCell、BasicLSTMCell这三个类的注释部分，应该就可以理解它们的功能了。
+
+除了call方法外，对于RNNCell，还有两个类属性比较重要：
+* state_size
+* output_size
+
+前者是隐层的大小，后者是输出的大小。比如我们通常是将一个batch送入模型计算，设输入数据的形状为(batch_size, input_size)，那么计算时得到的隐层状态就是(batch_size, state_size)，输出就是(batch_size, output_size)。
+
+可以用下面的代码验证一下（注意，以下代码都基于TensorFlow最新的1.2版本）：
+```python
+import tensorflow as tf
+import numpy as np
+
+cell = tf.nn.rnn_cell.BasicRNNCell(num_units=128) # state_size = 128
+print(cell.state_size) # 128
+
+inputs = tf.placeholder(np.float32, shape=(32, 100)) # 32 是 batch_size
+h0 = cell.zero_state(32, np.float32) # 通过zero_state得到一个全0的初始状态，形状为(batch_size, state_size)
+output, h1 = cell.call(inputs, h0) #调用call函数
+
+print(h1.shape) # (32, 128)
+```
