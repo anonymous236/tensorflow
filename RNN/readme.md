@@ -120,7 +120,7 @@ a_{3j} 的计算：
 
 前者是隐层的大小，后者是输出的大小。比如我们通常是将一个batch送入模型计算，设输入数据的形状为(batch_size, input_size)，那么计算时得到的隐层状态就是(batch_size, state_size)，输出就是(batch_size, output_size)。
 
-可以用下面的代码验证一下（注意，以下代码都基于TensorFlow最新的1.2版本）：
+可以用下面的代码验证一下（注意，以下代码都基于TensorFlow的1.2版本）：
 ```python
 import tensorflow as tf
 import numpy as np
@@ -134,3 +134,23 @@ output, h1 = cell.call(inputs, h0) #调用call函数
 
 print(h1.shape) # (32, 128)
 ```
+
+对于BasicLSTMCell，情况有些许不同，因为LSTM可以看做有两个隐状态h和c，对应的隐层就是一个Tuple，每个都是(batch_size, state_size)的形状：
+```python
+import tensorflow as tf
+import numpy as np
+lstm_cell = tf.nn.rnn_cell.BasicLSTMCell(num_units=128)
+inputs = tf.placeholder(np.float32, shape=(32, 100)) # 32 是 batch_size
+h0 = lstm_cell.zero_state(32, np.float32) # 通过zero_state得到一个全0的初始状态
+output, h1 = lstm_cell.call(inputs, h0)
+
+print(h1.h)  # shape=(32, 128)
+print(h1.c)  # shape=(32, 128)
+```
+
+**2&nbsp;&nbsp;&nbsp;&nbsp;学习如何一次执行多步：tf.nn.dynamic_rnn**
+
+基础的RNNCell有一个很明显的问题：对于单个的RNNCell，我们使用它的call函数进行运算时，只是在序列时间上前进了一步。比如使用x1、h0得到h1，通过x2、h1得到h2等。这样的h话，如果我们的序列长度为10，就要调用10次call函数，比较麻烦。对此，__TensorFlow提供了一个tf.nn.dynamic_rnn函数，使用该函数就相当于调用了n次call函数__。即通过{h0,x1, x2, …., xn}直接得{h1,h2…,hn}。
+
+具体来说，设我们输入数据的格式为(batch_size, time_steps, input_size)，其中time_steps表示序列本身的长度，如在Char RNN中，长度为10的句子对应的time_steps就等于10。最后的input_size就表示输入数据单个序列单个时间维度上固有的长度。另外我们已经定义好了一个RNNCell，调用该RNNCell的call函数time_steps次，对应的代码就是：
+
