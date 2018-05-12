@@ -153,4 +153,82 @@ print(h1.c)  # shape=(32, 128)
 基础的RNNCell有一个很明显的问题：对于单个的RNNCell，我们使用它的call函数进行运算时，只是在序列时间上前进了一步。比如使用x1、h0得到h1，通过x2、h1得到h2等。这样的h话，如果我们的序列长度为10，就要调用10次call函数，比较麻烦。对此，__TensorFlow提供了一个tf.nn.dynamic_rnn函数，使用该函数就相当于调用了n次call函数__。即通过{h0,x1, x2, …., xn}直接得{h1,h2…,hn}。
 
 具体来说，设我们输入数据的格式为(batch_size, time_steps, input_size)，其中time_steps表示序列本身的长度，如在Char RNN中，长度为10的句子对应的time_steps就等于10。最后的input_size就表示输入数据单个序列单个时间维度上固有的长度。另外我们已经定义好了一个RNNCell，调用该RNNCell的call函数time_steps次，对应的代码就是：
+```python
+# inputs: shape = (batch_size, time_steps, input_size) 
+# cell: RNNCell
+# initial_state: shape = (batch_size, cell.state_size)。初始状态。一般可以取零矩阵
+outputs, state = tf.nn.dynamic_rnn(cell, inputs, initial_state=initial_state)
+```
+此时，得到的outputs就是time_steps步里所有的输出。它的形状为(batch_size, time_steps, cell.output_size)。state是最后一步的隐状态，它的形状为(batch_size, cell.state_size)。此处建议大家阅读 [tf.nn.dynamic_rnn](https://www.tensorflow.org/api_docs/python/tf/nn/dynamic_rnn) 的文档做进一步了解。
 
+**3&nbsp;&nbsp;&nbsp;&nbsp;学习如何堆叠RNNCell：MultiRNNCell**
+
+很多时候，单层RNN的能力有限，我们需要多层的RNN。将x输入第一层RNN的后得到隐层状态h，这个隐层状态就相当于第二层RNN的输入，第二层RNN的隐层状态又相当于第三层RNN的输入，以此类推。在TensorFlow中，可以使用 [tf.nn.rnn_cell.MultiRNNCell](https://github.com/tensorflow/tensorflow/blob/r1.2/tensorflow/python/ops/rnn_cell_impl.py) 函数对RNNCell进行堆叠，相应的示例程序如下：
+```python
+import tensorflow as tf
+import numpy as np
+
+# 每调用一次这个函数就返回一个BasicRNNCell
+def get_a_cell():
+    return tf.nn.rnn_cell.BasicRNNCell(num_units=128)
+# 用tf.nn.rnn_cell MultiRNNCell创建3层RNN
+cell = tf.nn.rnn_cell.MultiRNNCell([get_a_cell() for _ in range(3)]) # 3层RNN
+# 得到的cell实际也是RNNCell的子类
+# 它的state_size是(128, 128, 128)
+# (128, 128, 128)并不是128x128x128的意思
+# 而是表示共有3个隐层状态，每个隐层状态的大小为128
+print(cell.state_size) # (128, 128, 128)
+# 使用对应的call函数
+inputs = tf.placeholder(np.float32, shape=(32, 100)) # 32 是 batch_size
+h0 = cell.zero_state(32, np.float32) # 通过zero_state得到一个全0的初始状态
+output, h1 = cell.call(inputs, h0)
+print(h1) # tuple中含有3个32x128的向量
+```
+
+**4&nbsp;&nbsp;&nbsp;&nbsp;可能遇到的坑1：Output说明**
+
+在经典RNN结构中有这样的图：
+
+![](https://pic3.zhimg.com/80/v2-71bec838a7a8410e477a186bf7cb2299_hd.jpg)
+
+在上面的代码中，我们好像有意忽略了调用call或dynamic_rnn函数后得到的output的介绍。将上图与TensorFlow的BasicRNNCell对照来看。h就对应了BasicRNNCell的state_size。那么， __y是不是就对应了BasicRNNCell的output_size呢？答案是否定的__ 。
+
+找到源码中BasicRNNCell的call函数实现：
+```python
+def call(self, inputs, state):
+    """Most basic RNN: output = new_state = act(W * input + U * state + B)."""
+    output = self._activation(_linear([inputs, state], self._num_units, True))
+    return output, output
+```
+这句“return output, output”说明 __在BasicRNNCell中，output其实和隐状态的值是一样的__ 。 因此， **`我们还需要额外对输出定义新的变换，才能得到图中真正的输出y`** 。由于output和隐状态是一回事，所以在BasicRNNCell中，state_size永远等于output_size。TensorFlow是出于尽量精简的目的来定义BasicRNNCell的，所以省略了输出参数，我们这里一定要弄清楚它和图中原始RNN定义的联系与区别。
+
+再来看一下BasicLSTMCell的call函数定义（函数的最后几行）：
+```python
+new_c = (
+    c * sigmoid(f + self._forget_bias) + sigmoid(i) * self._activation(j))
+new_h = self._activation(new_c) * sigmoid(o)
+
+if self._state_is_tuple:
+  new_state = LSTMStateTuple(new_c, new_h)
+else:
+  new_state = array_ops.concat([new_c, new_h], 1)
+return new_h, new_state
+```
+我们只需要关注self.\_state\_is\_tuple == True的情况，因为self.\_state\_is\_tuple == False的情况将在未来被弃用。返回的隐状态是new\_c和new\_h的组合，而output就是单独的new\_h。如果我们处理的是分类问题，那么我们还需要对new\_h添加单独的Softmax层才能得到最后的分类概率输出。
+
+**5&nbsp;&nbsp;&nbsp;&nbsp;可能遇到的坑2：因版本原因引起的错误**
+
+在前面我们讲到堆叠RNN时，使用的代码是：
+```python
+# 每调用一次这个函数就返回一个BasicRNNCell
+def get_a_cell():
+    return tf.nn.rnn_cell.BasicRNNCell(num_units=128)
+# 用tf.nn.rnn_cell MultiRNNCell创建3层RNN
+cell = tf.nn.rnn_cell.MultiRNNCell([get_a_cell() for _ in range(3)]) # 3层RNN
+```
+这个代码在TensorFlow 1.2中是可以正确使用的。但在之前的版本中（以及网上很多相关教程），实现方式是这样的：
+```python
+one_cell =  tf.nn.rnn_cell.BasicRNNCell(num_units=128)
+cell = tf.nn.rnn_cell.MultiRNNCell([one_cell] * 3) # 3层RNN
+```
+如果在TensorFlow 1.2中还按照原来的方式定义，就会引起错误！
