@@ -107,6 +107,8 @@ a_{3j} 的计算：
 
 以上就是带有Attention的Encoder-Decoder模型计算的全过程。
 
+
+
 ## TensorFlow中RNN实现的正确打开方式
 **1&nbsp;&nbsp;&nbsp;&nbsp;学习单步的RNN：RNNCell**
 
