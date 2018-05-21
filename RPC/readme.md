@@ -84,6 +84,10 @@
    ```
  * Java client: Java调用Python服务器RPC
    ```java
+   /**
+    * 这个是Java client和python server通信的实践，server运行的是Parlai问答模型
+    * 这一版本是从Java client远程开启server的python深度学习模型的程序，然后进行socket通信 
+    */
    public void run_py_socket() throws MalformedURLException, InterruptedException {
        //TODO Auto-generated method stub
        XmlRpcClientConfigImpl config = new XmlRpcClientConfigImpl();
@@ -98,8 +102,8 @@
            client.execute("run_parlai", params);
            System.out.println("Program completed.");
        } catch (XmlRpcException e) {
-       System.out.println("Connection Error.");
-       //e.printStackTrace();
+           System.out.println("Connection Error.");
+           //e.printStackTrace();
        }
    }
    ```
