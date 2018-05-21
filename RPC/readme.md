@@ -183,6 +183,53 @@
       def episode_done(self):
           return self.episodeDone
   ```
-  
+* [Java客户端](https://blog.csdn.net/ChenTianSaber/article/details/52274257)
+  ```java
+  /**
+   * 这个是Java client和python server通信的实践，server运行的是Parlai问答模型
+   * 这一版本是在服务器开启程序的情况下直接进行socket通信
+   */
+  public void socket2py() {
+      try {
+          // 返回的结果是字符串类型，强制转换res为String类型
+          //client.execute("run_parlai", params);
+          int index;
+          String info=null;
+          System.out.println("Socket connecting...");
+          Socket socket = new Socket("211.159.164.64",8061);
+          System.out.println("Socket conncted.\n");
+          while(true) {
+              InputStream is=socket.getInputStream();
+              BufferedReader in = new BufferedReader(new InputStreamReader(is));
+              while((info=in.readLine())!=null){     
+                  if((index = info.indexOf("eof")) != -1) {
+                      System.out.print(info.substring(0, index));
+                      break;
+                  }
+                  System.out.println(info);
+              }
+              if(info == null) {
+                  break;
+              }
+
+              Scanner s = new Scanner(System.in);
+              String str = null;
+              str = s.next();
+              OutputStream os=socket.getOutputStream();//字节输出流
+              PrintWriter pw=new PrintWriter(os);//将输出流包装为打印流
+              pw.write(str);
+              pw.flush();            
+          }
+          socket.shutdownOutput();//关闭输出流
+          socket.close();
+      } catch (UnknownHostException e) {
+          //TODO Auto-generated catch block
+          //e.printStackTrace();
+      } catch (IOException e) {
+          System.out.println("Connection Error.");
+          //e.printStackTrace();
+      }
+  }
+  ```
   
   
