@@ -196,7 +196,7 @@
           int index;
           String info=null;
           System.out.println("Socket connecting...");
-          Socket socket = new Socket("211.159.164.64",8061);
+          Socket socket = new Socket("serverIP",8061);
           System.out.println("Socket conncted.\n");
           while(true) {
               InputStream is=socket.getInputStream();
