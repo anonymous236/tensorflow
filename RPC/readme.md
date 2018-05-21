@@ -107,3 +107,20 @@
        }
    }
    ```
+
+## Python与Java之间Socket通信
+
+* [Python服务器](http://www.runoob.com/python/python-socket.html)
+  ```python
+  import socket
+  sock=socket.socket(socket.AF_INET,socket.SOCK_STREAM)
+  sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR  , 1)
+  sock.bind(("172.21.16.14",8061))
+  sock.listen(5)
+  conn, addr = sock.accept()
+  eval_model(opt,conn,print_parser=parser)
+  conn.send(bytes("exit\n" ,encoding="utf8"))
+  conn.close()
+  sock.shutdown(socket.SHUT_RDWR)
+  sock.close()
+  ```
