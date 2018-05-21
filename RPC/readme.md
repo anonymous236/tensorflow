@@ -93,7 +93,7 @@
        XmlRpcClientConfigImpl config = new XmlRpcClientConfigImpl();
        //config.setServerURL(new URL("http://192.168.77.89:8888/RPC2"));
        //URL是python服务端的SimpleXMLRPCServer(("192.168.77.89", 8888))，注意http和/RPC2
-       config.setServerURL(new URL("http://地址:端口号/RPC2"));
+       config.setServerURL(new URL("http:\/\/地址:8000/RPC2"));
        XmlRpcClient client = new XmlRpcClient();
        client.setConfig(config);
        Object[] params = null;
