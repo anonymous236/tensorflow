@@ -242,52 +242,53 @@
   * 模型结束, socket关闭
   
 * __如果不建立多线程, 那么串行执行程序会在“启动模型”处阻塞。 阻塞的原因是模型启动后会一直等待socket响应，当整个socket过程完成才会结束阻塞。而client socket发送响应的前提是启动模型结束，因此会陷入“死锁”。多线程可以很好的解决这个问题，当一个线程启动模型后等待client socket响应，另一线程会发送这个响应，整个过程便会运转起来~__
-```java
-// 已有RPC方法 run_py_socket 和 client socket方法 socket2py, 均属于Example类
-class RunnableSocket extends Thread {
-    private Thread t;
-    private int lable; //mark threads
+  ```java
+  // 已有RPC方法 run_py_socket 和 client socket方法 socket2py, 均属于Example类
+  class RunnableSocket extends Thread {
+      private Thread t;
+      private int lable; //mark threads
 
-    public RunnableSocket (int l) {
-        lable = l;
-    }
+      public RunnableSocket (int l) {
+          lable = l;
+      }
 
-    public void run() {
-        Example ex = new Example();
-        if(lable == 0) {
-            try {
-                ex.run_py_socket();
-            } catch (MalformedURLException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            } catch (InterruptedException e) {
-               // TODO Auto-generated catch block
-               e.printStackTrace();
-            }
-        }
-        else {
-            try {
-                Thread.sleep(1000);
-            } catch (InterruptedException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            }
-            ex.socket2py();
-        }
-    }
-}
+      public void run() {
+          Example ex = new Example();
+          if(lable == 0) {
+              try {
+                  ex.run_py_socket();
+              } catch (MalformedURLException e) {
+                  // TODO Auto-generated catch block
+                  e.printStackTrace();
+              } catch (InterruptedException e) {
+                 // TODO Auto-generated catch block
+                 e.printStackTrace();
+              }
+          }
+          else {
+              try {
+                  Thread.sleep(1000);
+              } catch (InterruptedException e) {
+                  // TODO Auto-generated catch block
+                  e.printStackTrace();
+              }
+              ex.socket2py();
+          }
+      }
+  }
 
-public class Socket2Py {
-    public static void main(String args[])throws Exception, MalformedURLException, XmlRpcHttpTransportException {		
-        RunnableSocket r0 = new RunnableSocket(0);
-        r0.start();
-        RunnableSocket r1 = new RunnableSocket(1);
-        r1.start();
-    }
-}
-```
+  public class Socket2Py {
+      public static void main(String args[])throws Exception, MalformedURLException, XmlRpcHttpTransportException {		
+          RunnableSocket r0 = new RunnableSocket(0);
+          r0.start();
+          RunnableSocket r1 = new RunnableSocket(1);
+          r1.start();
+      }
+  }
+  ```
 
 ## 腾讯云服务器实现socket通信
 
 * 参考[电脑和服务器的SOCKET通信](http://bbs.qcloud.com/thread-21376-1-1.html)
-* socket.bind(("IP",PORT))把IP地址改成公网IP, 服务器上的服务端运行出错; 改成这内网地址, 客户端上连接socket.connect(("IP",PORT)), 用的服务器公网的IP地址，连接成功。
+* socket.bind(("IP",PORT))把IP地址改成公网IP, 服务器上的服务端运行出错;
+  <br>改成这内网地址, 客户端上连接socket.connect(("IP",PORT)), 用的服务器公网的IP地址，连接成功。
