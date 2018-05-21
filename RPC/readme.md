@@ -113,14 +113,76 @@
 * [Python服务器](http://www.runoob.com/python/python-socket.html)
   ```python
   import socket
+  
+  # create socket
   sock=socket.socket(socket.AF_INET,socket.SOCK_STREAM)
+  # to solve the problem: "Address already in use"
+  # so that the port will be released immediately when the socket done.
   sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR  , 1)
-  sock.bind(("172.21.16.14",8061))
+  # i set a new port 8061
+  sock.bind(("server IP",8061))
   sock.listen(5)
   conn, addr = sock.accept()
-  eval_model(opt,conn,print_parser=parser)
+  # eval_model is a Parlai function, change it with adding a param "conn"
+  eval_model(opt, conn, print_parser=parser)
   conn.send(bytes("exit\n" ,encoding="utf8"))
   conn.close()
   sock.shutdown(socket.SHUT_RDWR)
   sock.close()
   ```
+* 在Parlai模型内部, 修改模型的输入输出为socket通信
+  ```python
+  from parlai.core.agents import Agent
+  from parlai.core.worlds import display_messages
+  import socket
+
+  class LocalHumanAgent(Agent):
+      def __init__(self, opt, conn, shared=None):
+          super().__init__(opt)
+          self.id = 'localHuman'
+          self.episodeDone = False
+          try:
+              self.conn = conn
+          except:
+              print("init socket error!")
+
+          self.conn.settimeout(None)
+
+      def observe(self, msg):
+          print(display_messages([msg]))
+          # send message to client
+          self.conn.send(bytes(display_messages([msg]) + "\n",encoding="utf8"))
+          print("\nsend finished.\n")
+
+      def act(self):
+          obs = self.observation
+          reply = {}
+          reply['id'] = self.getID()
+          # reply_text = input("Enter Your Message: ")
+          print("Enter Your Message: ")
+
+          # send message to client.
+          self.conn.send(bytes("Enter Your Message: ",encoding="utf8"))
+          # mark the last message with "eof"
+          self.conn.send(bytes("eof\n",encoding="utf8"))
+          # receive message from client
+          szBuf=self.conn.recv(1024)
+          print("recv:"+str(szBuf,'gbk'))
+          reply_text = str(szBuf, encoding='utf8')
+          print(type(szBuf))
+
+          reply_text = reply_text.replace('\\n', '\n')
+          reply['episode_done'] = False
+          if '[DONE]' in reply_text:
+              reply['episode_done'] = True
+              self.episodeDone = True
+              reply_text = reply_text.replace('[DONE]', '')
+          reply['text'] = reply_text
+          return reply
+
+      def episode_done(self):
+          return self.episodeDone
+  ```
+  
+  
+  
