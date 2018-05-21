@@ -291,4 +291,4 @@
 
 * 参考[电脑和服务器的SOCKET通信](http://bbs.qcloud.com/thread-21376-1-1.html)
 * socket.bind(("IP",PORT))把IP地址改成公网IP, 服务器上的服务端运行出错;
-  <br>改成这内网地址, 客户端上连接socket.connect(("IP",PORT)), 用的服务器公网的IP地址，连接成功。
+  <br>改成内网地址, 客户端上连接socket.connect(("IP",PORT)), 用的服务器公网的IP地址，连接成功。
